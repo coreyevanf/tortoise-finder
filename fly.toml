@@ -1,0 +1,25 @@
+app = "tortoise-finder-demo"
+
+[build]
+  dockerfile = "Dockerfile"
+
+[[services]]
+  internal_port = 8080
+  protocol = "tcp"
+
+  [[services.ports]]
+    port = 80
+  [[services.ports]]
+    port = 443
+
+  [[services.http_checks]]
+    interval = 10000
+    grace_period = "10s"
+    method = "get"
+    path = "/"
+    timeout = 2000
+
+  [[services.concurrency]]
+    type = "connections"
+    hard_limit = 550
+    soft_limit = 500

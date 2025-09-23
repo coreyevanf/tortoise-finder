@@ -2168,8 +2168,8 @@ class TortoiseHandler(http.server.SimpleHTTPRequestHandler):
             self.wfile.write(json.dumps(error_response).encode())
 
 if __name__ == "__main__":
-    PORT = 8081
-    
+    PORT = int(os.getenv("PORT", "8081"))
+
     with socketserver.TCPServer(("", PORT), TortoiseHandler) as httpd:
         print(f"Tortoise Finder Demo Server")
         print(f"Open your browser to: http://localhost:{PORT}")
