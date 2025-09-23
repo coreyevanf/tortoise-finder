@@ -1,0 +1,276 @@
+{
+  "validation": {
+    "galleryInfo": {
+      "tag": "div",
+      "id": "validation-gallery",
+      "cls": "gallery",
+      "display": "grid",
+      "position": "static",
+      "width": "100%",
+      "height": "auto",
+      "offsetWidth": 0,
+      "offsetHeight": 0,
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      }
+    },
+    "galleryChain": [
+      {
+        "tag": "div",
+        "id": "validation-gallery",
+        "cls": "gallery",
+        "display": "grid",
+        "position": "static",
+        "width": "100%",
+        "height": "auto",
+        "offsetWidth": 0,
+        "offsetHeight": 0,
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        }
+      },
+      {
+        "tag": "div",
+        "id": null,
+        "cls": "gallery-container",
+        "display": "block",
+        "position": "static",
+        "width": "100%",
+        "height": "auto",
+        "offsetWidth": 0,
+        "offsetHeight": 0,
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        }
+      },
+      {
+        "tag": "div",
+        "id": null,
+        "cls": "validation-card",
+        "display": "block",
+        "position": "static",
+        "width": "auto",
+        "height": "auto",
+        "offsetWidth": 0,
+        "offsetHeight": 0,
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        }
+      },
+      {
+        "tag": "div",
+        "id": "validation-tab",
+        "cls": "tab-content",
+        "display": "none",
+        "position": "static",
+        "width": "auto",
+        "height": "auto",
+        "offsetWidth": 0,
+        "offsetHeight": 0,
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        }
+      },
+      {
+        "tag": "div",
+        "id": "detection-tab",
+        "cls": "tab-content active",
+        "display": "block",
+        "position": "static",
+        "width": "760px",
+        "height": "5190.94px",
+        "offsetWidth": 760,
+        "offsetHeight": 5191,
+        "rect": {
+          "x": 20,
+          "y": 560.71875,
+          "width": 760,
+          "height": 5190.9375
+        }
+      },
+      {
+        "tag": "div",
+        "id": null,
+        "cls": "container",
+        "display": "block",
+        "position": "static",
+        "width": "800px",
+        "height": "5771.66px",
+        "offsetWidth": 800,
+        "offsetHeight": 5772,
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 800,
+          "height": 5771.65625
+        }
+      },
+      {
+        "tag": "body",
+        "id": null,
+        "cls": null,
+        "display": "block",
+        "position": "static",
+        "width": "800px",
+        "height": "5771.66px",
+        "offsetWidth": 800,
+        "offsetHeight": 5772,
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 800,
+          "height": 5771.65625
+        }
+      },
+      {
+        "tag": "html",
+        "id": null,
+        "cls": null,
+        "display": "block",
+        "position": "static",
+        "width": "800px",
+        "height": "5771.66px",
+        "offsetWidth": 800,
+        "offsetHeight": 5772,
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 800,
+          "height": 5771.65625
+        }
+      }
+    ],
+    "galleryCount": 0
+  },
+  "map": {
+    "mapInfo": {
+      "tag": "div",
+      "id": "map",
+      "cls": null,
+      "display": "block",
+      "width": "100%",
+      "height": "600px",
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      }
+    },
+    "mapChain": [
+      {
+        "tag": "div",
+        "id": "map",
+        "cls": null,
+        "display": "block",
+        "width": "100%",
+        "height": "600px",
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        }
+      },
+      {
+        "tag": "div",
+        "id": null,
+        "cls": "map-container",
+        "display": "block",
+        "width": "auto",
+        "height": "600px",
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        }
+      },
+      {
+        "tag": "div",
+        "id": "map-tab",
+        "cls": "tab-content",
+        "display": "none",
+        "width": "auto",
+        "height": "auto",
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        }
+      },
+      {
+        "tag": "div",
+        "id": "detection-tab",
+        "cls": "tab-content active",
+        "display": "block",
+        "width": "760px",
+        "height": "5190.94px",
+        "rect": {
+          "x": 20,
+          "y": 560.71875,
+          "width": 760,
+          "height": 5190.9375
+        }
+      },
+      {
+        "tag": "div",
+        "id": null,
+        "cls": "container",
+        "display": "block",
+        "width": "800px",
+        "height": "5771.66px",
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 800,
+          "height": 5771.65625
+        }
+      },
+      {
+        "tag": "body",
+        "id": null,
+        "cls": null,
+        "display": "block",
+        "width": "800px",
+        "height": "5771.66px",
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 800,
+          "height": 5771.65625
+        }
+      },
+      {
+        "tag": "html",
+        "id": null,
+        "cls": null,
+        "display": "block",
+        "width": "800px",
+        "height": "5771.66px",
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 800,
+          "height": 5771.65625
+        }
+      }
+    ]
+  }
+}

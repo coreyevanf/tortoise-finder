@@ -1,0 +1,11 @@
+{
+  "devDependencies": {
+    "@axe-core/playwright": "^4.10.2",
+    "@playwright/test": "^1.55.0",
+    "axe-core": "^4.10.3"
+  },
+  "scripts": {
+    "probe": "node tools/probe.mjs http://localhost:3000 artifacts",
+    "dev": "next dev -p 3000"
+  }
+}
