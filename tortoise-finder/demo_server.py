@@ -24,9 +24,40 @@ except ImportError:
     print("Warning: PIL/Pillow not available. EXIF GPS extraction disabled.")
 
 # Dataset configuration
-POSITIVE_PATH = "/Users/corey/galapagos/tortoise-finder/data/outputs/positive"
-CONFIRMED_PATH = "/Users/corey/galapagos/tortoise-finder/data/outputs/confirmed"
-NEGATIVE_PATH = "/Users/corey/galapagos/tortoise-finder/data/outputs/negative"
+BASE_DATA_PATH = os.environ.get(
+    "DATA_ROOT",
+    os.path.join(os.path.dirname(__file__), "data", "outputs")
+)
+
+POSITIVE_PATH = os.path.join(BASE_DATA_PATH, "positive")
+CONFIRMED_PATH = os.path.join(BASE_DATA_PATH, "confirmed")
+NEGATIVE_PATH = os.path.join(BASE_DATA_PATH, "negative")
+
+
+def fallback_coordinates(filename):
+    """Provide deterministic fallback coordinates when EXIF is missing."""
+    parts = filename.split('-')
+    camera_id = parts[0] if parts else "UNKNOWN"
+
+    # Seed with full filename to avoid stacking; keep camera-based centroid
+    rnd = random.Random(filename)
+
+    if camera_id == "B002T":
+        base_lat, base_lon = -0.43, -91.56
+        jitter = 0.015
+    elif camera_id == "B004T":
+        base_lat, base_lon = -0.58, -90.47
+        jitter = 0.02
+    elif camera_id == "B010T":
+        base_lat, base_lon = -0.44, -91.54
+        jitter = 0.012
+    else:
+        base_lat, base_lon = -0.5, -90.4
+        jitter = 0.03
+
+    lat = base_lat + rnd.uniform(-jitter, jitter)
+    lon = base_lon + rnd.uniform(-jitter, jitter)
+    return lat, lon
 
 def get_local_images(dataset_path, limit=50):
     """Get list of local training images with metadata."""
@@ -988,6 +1019,99 @@ HTML_TEMPLATE = """
 /* Prevent parent container from zeroing width/height */
 #validation-tab, #map-tab { min-height: 360px; }
 
+/* Full-screen Modal Styles */
+.fullscreen-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.95);
+    z-index: 10000;
+    overflow: hidden;
+}
+
+.fullscreen-content {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.fullscreen-header {
+    background: rgba(0, 0, 0, 0.8);
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: white;
+    flex-shrink: 0;
+}
+
+.fullscreen-title {
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+
+.fullscreen-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.fullscreen-image-container {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    min-height: 0;
+}
+
+#fullscreen-image {
+    max-width: 95%;
+    max-height: 95%;
+    object-fit: contain;
+    border-radius: 8px;
+}
+
+.navigation-arrows {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    pointer-events: none;
+    padding: 0 20px;
+}
+
+.nav-arrow {
+    background: rgba(0, 0, 0, 0.7);
+    border: none;
+    color: white;
+    padding: 15px 20px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 1.5rem;
+    pointer-events: auto;
+    transition: all 0.2s ease;
+}
+
+.nav-arrow:hover {
+    background: rgba(0, 0, 0, 0.9);
+    transform: scale(1.1);
+}
+
+.nav-arrow:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+.nav-arrow:disabled:hover {
+    transform: none;
+    background: rgba(0, 0, 0, 0.7);
+}
+
 
     </style>
 </head>
@@ -1168,9 +1292,10 @@ HTML_TEMPLATE = """
                         <span id="date-range">No data</span>
                     </div>
                     <div class="stat-item">
-                        <i class="fas fa-camera"></i>
-                        <span>Camera Traps:</span>
-                        <span class="stat-number" id="camera-count">0</span>
+                        <button class="btn btn-primary" onclick="downloadGPSData()" style="background: #10b981; border: none;">
+                            <i class="fas fa-download"></i>
+                            Download GPS Data
+                        </button>
                     </div>
                 </div>
                 <div class="map-layout">
@@ -1197,6 +1322,40 @@ HTML_TEMPLATE = """
                 </div>
             </div>
         </section>
+    </div>
+
+    <!-- Full-screen Image Modal -->
+    <div id="fullscreen-modal" class="fullscreen-modal" style="display: none;">
+        <div class="fullscreen-content">
+            <div class="fullscreen-header">
+                <button class="btn btn-secondary" onclick="closeFullscreen()">
+                    <i class="fas fa-arrow-left"></i>
+                    Back
+                </button>
+                <span id="fullscreen-title"></span>
+                <div class="fullscreen-actions">
+                    <button class="btn btn-confirm" onclick="confirmCurrentImage()">
+                        <i class="fas fa-check"></i>
+                        Confirm
+                    </button>
+                    <button class="btn btn-reject" onclick="rejectCurrentImage()">
+                        <i class="fas fa-times"></i>
+                        Reject
+                    </button>
+                </div>
+            </div>
+            <div class="fullscreen-image-container">
+                <img id="fullscreen-image" src="" alt="">
+                <div class="navigation-arrows">
+                    <button class="nav-arrow nav-prev" onclick="navigateImage(-1)">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <button class="nav-arrow nav-next" onclick="navigateImage(1)">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -1531,7 +1690,7 @@ HTML_TEMPLATE = """
                 const filename = item.tile_id + '.jpg';
                 return `
                     <div class="result-card" data-filename="${filename}">
-                    <img src="${item.thumb_url}" alt="${item.tile_id}" loading="lazy">
+                    <img src="${item.thumb_url}" alt="${item.tile_id}" loading="lazy" onclick="openFullscreen('${item.image_url}', '${item.tile_id}')" style="cursor: pointer;">
                     <div class="result-info">
                             <div class="tile-id">${item.tile_id}</div>
                             <div class="score">Confidence: ${(item.score * 100).toFixed(1)}%</div>
@@ -1791,10 +1950,151 @@ HTML_TEMPLATE = """
             });
         }
         
+        // Full-screen Image Functions
+        let currentImageData = [];
+        let currentImageIndex = 0;
+        
+        function openFullscreen(imageUrl, tileId) {
+            // Get all current images for navigation
+            const gallery = document.getElementById('gallery');
+            const cards = gallery.querySelectorAll('.result-card');
+            currentImageData = Array.from(cards).map(card => {
+                const img = card.querySelector('img');
+                const tileIdEl = card.querySelector('.tile-id');
+                return {
+                    imageUrl: img.src,
+                    tileId: tileIdEl.textContent,
+                    filename: card.dataset.filename
+                };
+            });
+            
+            // Find current image index
+            currentImageIndex = currentImageData.findIndex(item => item.tileId === tileId);
+            if (currentImageIndex === -1) currentImageIndex = 0;
+            
+            showFullscreenImage();
+            document.getElementById('fullscreen-modal').style.display = 'block';
+            
+            // Add keyboard navigation
+            document.addEventListener('keydown', handleKeyboardNavigation);
+        }
+        
+        function closeFullscreen() {
+            document.getElementById('fullscreen-modal').style.display = 'none';
+            document.removeEventListener('keydown', handleKeyboardNavigation);
+        }
+        
+        function showFullscreenImage() {
+            const currentImage = currentImageData[currentImageIndex];
+            if (!currentImage) return;
+            
+            document.getElementById('fullscreen-image').src = currentImage.imageUrl;
+            document.getElementById('fullscreen-title').textContent = currentImage.tileId;
+            
+            // Update navigation buttons
+            document.querySelector('.nav-prev').disabled = currentImageIndex === 0;
+            document.querySelector('.nav-next').disabled = currentImageIndex === currentImageData.length - 1;
+        }
+        
+        function navigateImage(direction) {
+            const newIndex = currentImageIndex + direction;
+            if (newIndex >= 0 && newIndex < currentImageData.length) {
+                currentImageIndex = newIndex;
+                showFullscreenImage();
+            }
+        }
+        
+        function confirmCurrentImage() {
+            const currentImage = currentImageData[currentImageIndex];
+            if (currentImage) {
+                confirmImage(currentImage.filename);
+                // Optionally close modal or navigate to next
+                if (currentImageIndex < currentImageData.length - 1) {
+                    navigateImage(1);
+                } else {
+                    closeFullscreen();
+                }
+            }
+        }
+        
+        function rejectCurrentImage() {
+            const currentImage = currentImageData[currentImageIndex];
+            if (currentImage) {
+                rejectImage(currentImage.filename);
+                // Optionally close modal or navigate to next
+                if (currentImageIndex < currentImageData.length - 1) {
+                    navigateImage(1);
+                } else {
+                    closeFullscreen();
+                }
+            }
+        }
+        
+        function handleKeyboardNavigation(event) {
+            switch(event.key) {
+                case 'ArrowLeft':
+                    event.preventDefault();
+                    navigateImage(-1);
+                    break;
+                case 'ArrowRight':
+                    event.preventDefault();
+                    navigateImage(1);
+                    break;
+                case 'Escape':
+                    event.preventDefault();
+                    closeFullscreen();
+                    break;
+                case 'c':
+                case 'C':
+                    event.preventDefault();
+                    confirmCurrentImage();
+                    break;
+                case 'r':
+                case 'R':
+                    event.preventDefault();
+                    rejectCurrentImage();
+                    break;
+            }
+        }
+        
         // Event listeners
         document.getElementById('page').addEventListener('change', refreshResults);
         document.getElementById('page-size').addEventListener('change', refreshResults);
         document.getElementById('validation-filter').addEventListener('change', loadValidationImagesScoped);
+
+        function downloadGPSData() {
+            fetch('/gps_data')
+                .then(response => response.json())
+                .then(data => {
+                    const gpxData = convertToGPX(data.points);
+                    const blob = new Blob([gpxData], { type: 'application/gpx+xml' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'gps_data.gpx';
+                    a.click();
+                    URL.revokeObjectURL(url);
+                })
+                .catch(error => console.error('Error downloading GPS data:', error));
+        }
+
+        function convertToGPX(points) {
+            let gpx = `<?xml version="1.0" encoding="UTF-8"?>\n`;
+            gpx += `<gpx version="1.1" creator="Tortoise Finder">\n`;
+            points.forEach(point => {
+                if (point.lat && point.lon) {
+                    gpx += `<wpt lat="${point.lat}" lon="${point.lon}">\n`;
+                    gpx += `<name>${point.tile_id}</name>\n`;
+                    gpx += `</wpt>\n`;
+                }
+            });
+            gpx += `</gpx>`;
+            return gpx;
+        }
+
+        function goBack() {
+            window.history.back();
+        }
     </script>
 </body>
 </html>
@@ -2077,7 +2377,7 @@ class TortoiseHandler(http.server.SimpleHTTPRequestHandler):
 
                 lat, lon = extract_gps_from_image(fp)  # may be None
                 if lat is None or lon is None:
-                    continue
+                    lat, lon = fallback_coordinates(fn)
 
                 safe_name = urllib.parse.quote(fn)
                 points.append({

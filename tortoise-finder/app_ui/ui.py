@@ -45,7 +45,7 @@ with gr.Blocks(title="Tortoise Finder") as demo:
             page = gr.Number(value=1, precision=0, label="Page")
             page_size = gr.Dropdown(choices=[20, 40, 80], value=40, label="Page size")
             refresh = gr.Button("Refresh")
-        gallery = gr.Gallery(label="Positives", columns=6, height=600)
+        gallery = gr.Gallery(label="Positives", columns=6, height=600, full_screen=True)
         tally = gr.Markdown()
         with gr.Row():
             fmt = gr.Dropdown(choices=["geojson", "csv", "gpx", "kml"], value="geojson", label="Export format")
@@ -59,6 +59,25 @@ with gr.Blocks(title="Tortoise Finder") as demo:
     refresh.click(fetch_page, [run_id, thr, page, page_size], [gallery, tally])
     thr.release(fetch_page, [run_id, thr, page, page_size], [gallery, tally])
     export_btn.click(export_file, [run_id, fmt], [url])
+
+    # Add event listeners for confirm and reject buttons
+    confirm_btn = gr.Button("Confirm")
+    reject_btn = gr.Button("Reject")
+    confirm_btn.click(lambda img_id: confirm_image(img_id), [gallery.selected], None)
+    reject_btn.click(lambda img_id: reject_image(img_id), [gallery.selected], None)
+
+    # JavaScript for rapid navigation and full-screen view
+    <script>
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'ArrowRight') {
+                // Navigate to next image
+                gallery.next();
+            } else if (event.key === 'ArrowLeft') {
+                // Navigate to previous image
+                gallery.prev();
+            }
+        });
+    </script>
 
 if __name__ == "__main__":
     demo.launch(server_name="0.0.0.0", server_port=7860)
